@@ -36,8 +36,7 @@ int char_buffer_from_file(char *filename, struct char_buffer **buffer)
             1,
             filesize - bytes_read_total);
         bytes_read_total += bytes_read;
-    }
-    while ((bytes_read_total < filesize) && (bytes_read != 0));
+    } while ((bytes_read_total < filesize) && (bytes_read != 0));
     
     return 0;
 }
