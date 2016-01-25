@@ -2,6 +2,11 @@
 #include <SDL.h>
 #include <GL/glew.h>
 
+#include <stdint.h>
+
+#include "shader.h"
+#include "char_buffer.h"
+
 void safe_exit()
 {
     SDL_Quit();
@@ -26,6 +31,11 @@ void die_if(int condition, char *message)
 
     printf(message);
     safe_exit_fail();
+}
+
+void debug_gl(int line)
+{
+    printf("%d: %d\n", line, glGetError());
 }
 
 int main(int argc, char *argv[])
@@ -62,11 +72,72 @@ int main(int argc, char *argv[])
         err != GLEW_OK,
         "glewInit() failed.");
 
-    glClearColor(1.0, 0.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    SDL_GL_SwapWindow(window);
-
-    SDL_Delay(1000);
+   
     
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    debug_gl(__LINE__);
+
+    GLuint vertex_array_id;
+    glGenVertexArrays(1, &vertex_array_id);
+    debug_gl(__LINE__);
+    glBindVertexArray(vertex_array_id);
+    debug_gl(__LINE__);
+
+    GLuint program_id;
+    load_shaders(&program_id);
+    debug_gl(__LINE__);
+
+    GLfloat g_vertex_buffer_data[] = {
+        -1.0f, -1.0f, 0.0f,
+        1.0f, -1.0f, 0.0f,
+        0.0f,  1.0f, 0.0f,
+     };
+
+    GLuint vertex_buffer;
+    // Generate 1 buffer, put the resulting identifier in vertexbuffer
+    glGenBuffers(1, &vertex_buffer);
+    debug_gl(__LINE__);
+    // The following commands will talk about our 'vertexbuffer' buffer
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+    debug_gl(__LINE__);
+    // Give our vertices to OpenGL.
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        sizeof(g_vertex_buffer_data),
+        g_vertex_buffer_data,
+        GL_STATIC_DRAW);
+    debug_gl(__LINE__);
+
+
+    // Loop starts (?)
+    glClear(GL_COLOR_BUFFER_BIT);
+    debug_gl(__LINE__);
+
+    glUseProgram(program_id);
+    debug_gl(__LINE__);
+
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+    glVertexAttribPointer(
+       0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+       3,                  // size
+       GL_FLOAT,           // type
+       GL_FALSE,           // normalized?
+       0,                  // stride
+       (void*)0            // array buffer offset
+    );
+    // Draw the triangle !
+    glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+
+    glDisableVertexAttribArray(0);
+
+    SDL_GL_SwapWindow(window);
+    
+    // Cleanup
+    glDeleteBuffers(1, &vertex_buffer);
+    glDeleteVertexArrays(1, &vertex_array_id);
+    SDL_Delay(1000);
+
     safe_exit_success();
 }

@@ -1,6 +1,7 @@
-#version 300 core
-layout(location = 0) in vec3 vertexPosition_modelspace;
+#version 300 es
+in vec3 position;
 
-gl_Position.xyz = vertexPosition_modelspace;
-  gl_Position.w = 1.0;
+void main() {
+    gl_Position.xyz = position;
+    gl_Position.w = 1.0;
 }
