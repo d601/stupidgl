@@ -33,11 +33,6 @@ void die_if(int condition, char *message)
     safe_exit_fail();
 }
 
-void debug_gl(int line)
-{
-    printf("%d: %d\n", line, glGetError());
-}
-
 int main(int argc, char *argv[])
 {
     int return_status;
@@ -71,21 +66,15 @@ int main(int argc, char *argv[])
     die_if(
         err != GLEW_OK,
         "glewInit() failed.");
-
-   
     
     glClearColor(0.0, 0.0, 0.0, 0.0);
-    debug_gl(__LINE__);
 
     GLuint vertex_array_id;
     glGenVertexArrays(1, &vertex_array_id);
-    debug_gl(__LINE__);
     glBindVertexArray(vertex_array_id);
-    debug_gl(__LINE__);
 
     GLuint program_id;
     load_shaders(&program_id);
-    debug_gl(__LINE__);
 
     GLfloat g_vertex_buffer_data[] = {
         -1.0f, -1.0f, 0.0f,
@@ -96,25 +85,20 @@ int main(int argc, char *argv[])
     GLuint vertex_buffer;
     // Generate 1 buffer, put the resulting identifier in vertexbuffer
     glGenBuffers(1, &vertex_buffer);
-    debug_gl(__LINE__);
     // The following commands will talk about our 'vertexbuffer' buffer
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    debug_gl(__LINE__);
     // Give our vertices to OpenGL.
     glBufferData(
         GL_ARRAY_BUFFER,
         sizeof(g_vertex_buffer_data),
         g_vertex_buffer_data,
         GL_STATIC_DRAW);
-    debug_gl(__LINE__);
 
 
     // Loop starts (?)
     glClear(GL_COLOR_BUFFER_BIT);
-    debug_gl(__LINE__);
 
     glUseProgram(program_id);
-    debug_gl(__LINE__);
 
     glEnableVertexAttribArray(0);
 
