@@ -1,11 +1,12 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <SDL.h>
 #include <GL/glew.h>
-
-#include <stdint.h>
+#include <math.h>
 
 #include "shader.h"
 #include "char_buffer.h"
+#include "matrix.h"
 
 void safe_exit()
 {
@@ -33,8 +34,40 @@ void die_if(int condition, char *message)
     safe_exit_fail();
 }
 
+/*
 int main(int argc, char *argv[])
 {
+    float **matrix;
+    die_if(
+        matrix_new(4, 3, &matrix) < 0,
+        "Nope");
+    
+    matrix_set_unit_matrix(4, 3, &matrix);
+    matrix_print(4, 3, matrix);
+
+    float **matrix2;
+    matrix_new(3, 6, &matrix2);
+    matrix_set_value(3, 6, &matri
+
+    return 0;
+}
+*/
+
+int process_events()
+{
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+            case SDL_QUIT:
+                safe_exit_success();
+                break;
+        }
+    }
+}
+
+int main(int argc, char *argv[])
+{
+
     int return_status;
 
     die_if(
@@ -50,8 +83,8 @@ int main(int argc, char *argv[])
         "A stupid window",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        640,
-        480,
+        1024,
+        768,
         SDL_WINDOW_OPENGL);
     die_if(
         window == NULL,
@@ -94,34 +127,61 @@ int main(int argc, char *argv[])
         g_vertex_buffer_data,
         GL_STATIC_DRAW);
 
+    GLint gScale_location = glGetUniformLocation(program_id, "gScale");
+    /*
+    die_if(
+        gScale_location == 0xFFFFFFFF,
+        "No gScale location");
+    */
 
-    // Loop starts (?)
-    glClear(GL_COLOR_BUFFER_BIT);
+    GLint gWorld_location = glGetUniformLocation(program_id, "gWorld");
+    die_if(
+        gWorld_location == 0xFFFFFFFF,
+        "No world location");
 
-    glUseProgram(program_id);
+    float scale = 0.0;
+    float *world_matrix;
+    matrix_new(4, 4, &world_matrix);
+    matrix_set_identity(4, 4, &world_matrix);
 
-    glEnableVertexAttribArray(0);
+    for (;;) {
+        process_events();
 
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    glVertexAttribPointer(
-       0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-       3,                  // size
-       GL_FLOAT,           // type
-       GL_FALSE,           // normalized?
-       0,                  // stride
-       (void*)0            // array buffer offset
-    );
-    // Draw the triangle !
-    glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+        scale += 0.01;
+        glUniform1f(gScale_location, sinf(scale));
 
-    glDisableVertexAttribArray(0);
+        world_matrix[0 * 4 + 3] = cosf(scale);
+        world_matrix[1 * 4 + 3] = sinf(scale);
+        //matrix_print(4, 4, world_matrix);
+        glUniformMatrix4fv(gWorld_location, 1, GL_TRUE, &world_matrix[0]);
+        // Loop starts (?)
+        glClear(GL_COLOR_BUFFER_BIT);
 
-    SDL_GL_SwapWindow(window);
+        glUseProgram(program_id);
+
+        glEnableVertexAttribArray(0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+        glVertexAttribPointer(
+           0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+           3,                  // size
+           GL_FLOAT,           // type
+           GL_FALSE,           // normalized?
+           0,                  // stride
+           (void*)0            // array buffer offset
+        );
+        // Draw the triangle !
+        glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+
+        glDisableVertexAttribArray(0);
+
+        SDL_GL_SwapWindow(window);
+        //SDL_Delay(1000);
+    }
     
     // Cleanup
     glDeleteBuffers(1, &vertex_buffer);
     glDeleteVertexArrays(1, &vertex_array_id);
-    SDL_Delay(1000);
 
     safe_exit_success();
 }
