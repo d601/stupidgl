@@ -70,6 +70,7 @@ int main(int argc, char *argv[])
 
     int return_status;
 
+    // Setup our SDL window
     die_if(
         SDL_Init(SDL_INIT_VIDEO) < 0,
         "SDL_Init failed.");
@@ -90,6 +91,7 @@ int main(int argc, char *argv[])
         window == NULL,
         "SDL_CreateWindow() failed.");
 
+    // Setup GLEW/GL
     SDL_GLContext gl_context = SDL_GL_CreateContext(window);
     die_if(
         gl_context == NULL,
@@ -102,31 +104,32 @@ int main(int argc, char *argv[])
     
     glClearColor(0.0, 0.0, 0.0, 0.0);
 
+    // Create vertex array
     GLuint vertex_array_id;
     glGenVertexArrays(1, &vertex_array_id);
     glBindVertexArray(vertex_array_id);
 
+    // Load shaders
     GLuint program_id;
     load_shaders(&program_id);
 
+    // Create vertex buffer
     GLfloat g_vertex_buffer_data[] = {
-        -1.0f, -1.0f, 0.0f,
-        1.0f, -1.0f, 0.0f,
-        0.0f,  1.0f, 0.0f,
+        -32.0f, -8.0f, -4.0f,
+        8.0f, -8.0f, -4.0f,
+        0.0f,  8.0f, -4.0f,
      };
 
     GLuint vertex_buffer;
-    // Generate 1 buffer, put the resulting identifier in vertexbuffer
     glGenBuffers(1, &vertex_buffer);
-    // The following commands will talk about our 'vertexbuffer' buffer
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    // Give our vertices to OpenGL.
     glBufferData(
         GL_ARRAY_BUFFER,
         sizeof(g_vertex_buffer_data),
         g_vertex_buffer_data,
         GL_STATIC_DRAW);
 
+    // Bind variables to their location in the shaders
     GLint gScale_location = glGetUniformLocation(program_id, "gScale");
     /*
     die_if(
@@ -134,26 +137,44 @@ int main(int argc, char *argv[])
         "No gScale location");
     */
 
-    GLint gWorld_location = glGetUniformLocation(program_id, "gWorld");
+    GLint projection_matrix_location = glGetUniformLocation(program_id, "projection_matrix");
     die_if(
-        gWorld_location == 0xFFFFFFFF,
-        "No world location");
+        projection_matrix_location == 0xFFFFFFFF,
+        "No projection matrix location");
 
     float scale = 0.0;
+    float rotation = 0.0;
+    float *projection_matrix;
+    float *rotation_matrix;
     float *world_matrix;
+    matrix_new(4, 4, &projection_matrix);
+    matrix_new(4, 4, &rotation_matrix);
     matrix_new(4, 4, &world_matrix);
-    matrix_set_identity(4, 4, &world_matrix);
+    //matrix_set_identity(4, 4, &world_matrix);
+    matrix_set_perspective(-32.0, -16.0, 3.0, 32.0, 16.0, 32.0, &projection_matrix);
+    //matrix_print(4, 4, projection_matrix);
 
     for (;;) {
         process_events();
 
+        rotation += 0.01;
+        matrix_set_rotation_y(rotation, &rotation_matrix);
+
         scale += 0.01;
         glUniform1f(gScale_location, sinf(scale));
 
-        world_matrix[0 * 4 + 3] = cosf(scale);
-        world_matrix[1 * 4 + 3] = sinf(scale);
+        //world_matrix[0 * 4 + 3] = cosf(scale);
+        //world_matrix[1 * 4 + 3] = sinf(scale);
+        
         //matrix_print(4, 4, world_matrix);
-        glUniformMatrix4fv(gWorld_location, 1, GL_TRUE, &world_matrix[0]);
+        matrix_multiply(
+            4, 4, rotation_matrix,
+            4, 4, projection_matrix,
+            NULL, NULL, &world_matrix);
+
+        matrix_print(4, 4, world_matrix);
+
+        glUniformMatrix4fv(projection_matrix_location, 1, GL_FALSE, &world_matrix[0]);
         // Loop starts (?)
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -176,7 +197,7 @@ int main(int argc, char *argv[])
         glDisableVertexAttribArray(0);
 
         SDL_GL_SwapWindow(window);
-        //SDL_Delay(1000);
+        SDL_Delay(10);
     }
     
     // Cleanup

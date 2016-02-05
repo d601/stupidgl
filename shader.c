@@ -24,6 +24,7 @@ GLuint load_shader(char *filename, GLenum shader_type, GLuint *shader_id) {
     glGetShaderiv(*shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
 
     if (info_log_length > 1) {
+        printf("Log from %s:\n", filename);
         struct char_buffer *log_buffer;
         char_buffer_new(info_log_length, &log_buffer);
         glGetShaderInfoLog(*shader_id, info_log_length, NULL, log_buffer->buffer);
