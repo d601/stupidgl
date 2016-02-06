@@ -10,6 +10,8 @@
 #include "matrix.h"
 #include "stupid_engine.h"
 
+// Everything outside the main engine code has no business killing the program,
+// so these functions aren't exported anywhere.
 void safe_exit()
 {
     SDL_Quit();
@@ -146,9 +148,8 @@ int stupid_engine_start(struct stupid_engine *engine)
     matrix_b_new(4, 4, &projection_matrix);
     matrix_b_new(4, 4, &rotation_matrix);
     matrix_b_new(4, 4, &world_matrix);
-    //matrix_set_identity(4, 4, &world_matrix);
+
     matrix_set_perspective(-32.0, -16.0, 3.0, 32.0, 16.0, 32.0, &projection_matrix);
-    //matrix_print(4, 4, projection_matrix);
 
     for (;;) {
         stupid_engine_process_events(engine);
@@ -158,20 +159,14 @@ int stupid_engine_start(struct stupid_engine *engine)
 
         scale += 0.01;
         glUniform1f(gScale_location, sinf(scale));
-
-        //world_matrix[0 * 4 + 3] = cosf(scale);
-        //world_matrix[1 * 4 + 3] = sinf(scale);
         
-        //matrix_print(4, 4, world_matrix);
         matrix_multiply(
             4, 4, rotation_matrix,
             4, 4, projection_matrix,
             NULL, NULL, &world_matrix);
 
-        matrix_print(4, 4, world_matrix);
-
         glUniformMatrix4fv(projection_matrix_location, 1, GL_FALSE, &world_matrix[0]);
-        // Loop starts (?)
+        
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(program_id);
@@ -180,15 +175,15 @@ int stupid_engine_start(struct stupid_engine *engine)
 
         glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
         glVertexAttribPointer(
-           0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-           3,                  // size
-           GL_FLOAT,           // type
-           GL_FALSE,           // normalized?
-           0,                  // stride
-           (void*)0            // array buffer offset
+           0,
+           3,
+           GL_FLOAT,
+           GL_FALSE,           
+           0,
+           (void*) 0
         );
-        // Draw the triangle !
-        glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+        
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glDisableVertexAttribArray(0);
 
