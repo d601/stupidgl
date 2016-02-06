@@ -36,7 +36,7 @@ void die_if(int condition, char *message)
     safe_exit_fail();
 }
 
-int process_events(struct stupid_engine *engine)
+int stupid_engine_process_events(struct stupid_engine *engine)
 {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -145,7 +145,7 @@ int stupid_engine_start(struct stupid_engine *engine)
     //matrix_print(4, 4, projection_matrix);
 
     for (;;) {
-        process_events(engine);
+        stupid_engine_process_events(engine);
 
         rotation += 0.01;
         matrix_set_rotation_y(rotation, &rotation_matrix);
