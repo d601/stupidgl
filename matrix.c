@@ -5,7 +5,24 @@
 
 #include "matrix.h"
 
-int matrix_new(uint8_t m, uint8_t n, float **matrix)
+/**
+ * Matrix functions
+ *
+ * Each function (should have) two versions, one that operates on a matrix struct and
+ * one that operates on a bare matrix. In a lot of cases, the size of a matrix
+ * can be assumed so there's no need to waste overhead on extra data.
+ *
+ */
+
+int matrix_new(uint8_t m, uint8_t n, struct matrix **matrix)
+{
+    *matrix = malloc(sizeof(struct matrix));
+    (*matrix)->rows = m;
+    (*matrix)->columns = n;
+    return matrix_b_new(m, n, &((*matrix)->data));
+}
+
+int matrix_b_new(uint8_t m, uint8_t n, float **matrix)
 {
     (*matrix) = malloc(sizeof(float) * m * n);
     return 0;
@@ -146,7 +163,7 @@ int matrix_multiply(
         return -1;
 
     if (*t == NULL)
-        matrix_new(m1m, m2n, t);
+        matrix_b_new(m1m, m2n, t);
 
     for (uint8_t i = 0; i < m1m; i++) {
         for (uint8_t j = 0; j < m2n; j++) {

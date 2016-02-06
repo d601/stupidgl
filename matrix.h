@@ -2,7 +2,15 @@
 
 #include <stdint.h>
 
-int matrix_new(uint8_t m, uint8_t n, float **matrix);
+struct matrix {
+    uint8_t rows;
+    uint8_t columns;
+    float *data;
+};
+
+int matrix_new(uint8_t m, uint8_t n, struct matrix **matrix);
+
+int matrix_b_new(uint8_t m, uint8_t n, float **matrix);
 
 int matrix_set_identity(uint8_t m, uint8_t n, float **matrix);
 
