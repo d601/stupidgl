@@ -50,6 +50,41 @@ int stupid_engine_process_events(struct stupid_engine *engine)
     return 0;
 }
 
+int stupid_engine_init_sdl_opengl(struct stupid_engine *engine)
+{
+    die_if(
+        SDL_Init(SDL_INIT_VIDEO) < 0,
+        "SDL_Init failed.");
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+
+    engine->window = SDL_CreateWindow(
+        "A stupid window",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        1024,
+        768,
+        SDL_WINDOW_OPENGL);
+    
+    die_if(
+        engine->window == NULL,
+        "SDL_CreateWindow() failed.");
+
+    // Setup GLEW/GL
+    SDL_GLContext gl_context = SDL_GL_CreateContext(engine->window);
+    die_if(
+        gl_context == NULL,
+        "SDL_GL_CreateContext() failed.");
+
+    GLenum err = glewInit();
+    die_if(
+        err != GLEW_OK,
+        "glewInit() failed.");
+
+    return 0;
+}
+
 int stupid_engine_new(struct stupid_engine *engine)
 {
     engine = malloc(sizeof(struct stupid_engine));
@@ -61,37 +96,8 @@ int stupid_engine_new(struct stupid_engine *engine)
 
 int stupid_engine_start(struct stupid_engine *engine)
 {
-    die_if(
-        SDL_Init(SDL_INIT_VIDEO) < 0,
-        "SDL_Init failed.");
+    stupid_engine_init_sdl_opengl(engine);
 
-    // Unclear where exactly these should be set.
-    // Also, need to check for errors.
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-
-    SDL_Window *window = SDL_CreateWindow(
-        "A stupid window",
-        SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED,
-        1024,
-        768,
-        SDL_WINDOW_OPENGL);
-    die_if(
-        window == NULL,
-        "SDL_CreateWindow() failed.");
-
-    // Setup GLEW/GL
-    SDL_GLContext gl_context = SDL_GL_CreateContext(window);
-    die_if(
-        gl_context == NULL,
-        "SDL_GL_CreateContext() failed.");
-
-    GLenum err = glewInit();
-    die_if(
-        err != GLEW_OK,
-        "glewInit() failed.");
-    
     glClearColor(0.0, 0.0, 0.0, 0.0);
 
     // Create vertex array
@@ -186,7 +192,7 @@ int stupid_engine_start(struct stupid_engine *engine)
 
         glDisableVertexAttribArray(0);
 
-        SDL_GL_SwapWindow(window);
+        SDL_GL_SwapWindow(engine->window);
         SDL_Delay(10);
     }
     

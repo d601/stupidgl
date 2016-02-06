@@ -1,7 +1,9 @@
 #pragma once
 
+#include <SDL.h>
+
 struct stupid_engine {
-    int placeholder;
+    SDL_Window *window;
 };
 
 int stupid_engine_new(struct stupid_engine *engine);
