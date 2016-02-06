@@ -8,7 +8,6 @@
 #include "shader.h"
 #include "char_buffer.h"
 #include "matrix.h"
-
 #include "stupid_engine.h"
 
 void safe_exit()
