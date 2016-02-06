@@ -9,12 +9,15 @@ GLuint load_shader(char *filename, GLenum shader_type, GLuint *shader_id) {
     char_buffer_from_file(filename, &shader_buffer);
     *shader_id = glCreateShader(shader_type);
 
-    // Casting to const char is probably bad
+    if (!char_buffer_fits_in_glint(shader_buffer))
+        return -1;
+
+    // Casting to const char is probably bad (???)
     glShaderSource(
         *shader_id,
         1,
         (const char **) &(shader_buffer->buffer),
-        &(shader_buffer->size));
+        (GLint *) &(shader_buffer->size));
 
     GLint result = GL_FALSE;
     glCompileShader(*shader_id);

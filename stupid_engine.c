@@ -47,11 +47,17 @@ int process_events(struct stupid_engine *engine)
                 break;
         }
     }
+
+    return 0;
 }
 
 int stupid_engine_new(struct stupid_engine *engine)
 {
     engine = malloc(sizeof(struct stupid_engine));
+    if (engine == NULL)
+        return -1;
+
+    return 0;
 }
 
 int stupid_engine_start(struct stupid_engine *engine)

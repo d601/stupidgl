@@ -12,3 +12,4 @@ struct char_buffer
 int char_buffer_new(uint32_t size, struct char_buffer **buffer);
 int char_buffer_from_file(char *filename, struct char_buffer **buffer);
 void char_buffer_print(struct char_buffer *buffer);
+int char_buffer_fits_in_glint(struct char_buffer *buffer);

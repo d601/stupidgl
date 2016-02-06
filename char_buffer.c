@@ -1,7 +1,10 @@
 #include <SDL.h>
+#include <GL/glew.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+#include "common.h"
 #include "char_buffer.h"
-#include "stdlib.h"
-#include "stdio.h"
 
 // Null terminated strings are stupid.
 // These functions will handle data with the null byte in them.
@@ -46,4 +49,13 @@ void char_buffer_print(struct char_buffer *buffer)
     for (uint32_t i = 0; i < buffer->size; i++) {
         printf("%c", (buffer->buffer)[i]);
     }
+}
+
+// Tells you if a char buffer's size is safe to cast to a GLint.
+// This is more efficient than a specific function for conversion because it's
+// just a cast when it works.
+// Also, I have no idea if this works correctly.
+int char_buffer_fits_in_glint(struct char_buffer *buffer)
+{
+    return (buffer->size < GLINT_MAX);
 }

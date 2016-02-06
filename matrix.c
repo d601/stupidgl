@@ -35,6 +35,8 @@ int matrix_set_identity(uint8_t m, uint8_t n, float **matrix)
             (*matrix)[i * m + j] = ((i == j) ? 1.0 : 0.0);
         }
     }
+
+    return 0;
 }
 
 void matrix_print(uint8_t m, uint8_t n, float *matrix)
@@ -82,6 +84,8 @@ int matrix_set_perspective(
     (*matrix)[3 * 4 + 1] = 0.0;
     (*matrix)[3 * 4 + 2] = 1.0;
     (*matrix)[3 * 4 + 3] = 0.0;
+
+    return 0;
 }
 
 int matrix_set_rotation_x(float phi, float **matrix)
@@ -108,6 +112,8 @@ int matrix_set_rotation_x(float phi, float **matrix)
     (*matrix)[3 * 4 + 1] = 0.0;
     (*matrix)[3 * 4 + 2] = 0.0;
     (*matrix)[3 * 4 + 3] = 1.0;
+
+    return 0;
 }
 
 int matrix_set_rotation_y(float phi, float **matrix)
@@ -134,6 +140,8 @@ int matrix_set_rotation_y(float phi, float **matrix)
     (*matrix)[3 * 4 + 1] = 0.0;
     (*matrix)[3 * 4 + 2] = 0.0;
     (*matrix)[3 * 4 + 3] = 1.0;
+
+    return 0;
 }
 
 
@@ -141,6 +149,7 @@ int matrix_set_rotation_y(float phi, float **matrix)
 int matrix_multiply_point(float *matrix, float *point_in, float *point_out)
 {
     // fill me in
+    return 0;
 }
 
 // untested
