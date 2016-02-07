@@ -84,13 +84,14 @@ int stupid_engine_init_sdl_opengl(struct stupid_engine *engine)
         err != GLEW_OK,
         "glewInit() failed.");
 
+    printf("Initialization of SDL/OpenGL completed successfully.\n");
     return 0;
 }
 
-int stupid_engine_new(struct stupid_engine *engine)
+int stupid_engine_new(struct stupid_engine **engine)
 {
-    engine = malloc(sizeof(struct stupid_engine));
-    if (engine == NULL)
+    *engine = malloc(sizeof(struct stupid_engine));
+    if (*engine == NULL)
         return -1;
 
     return 0;
