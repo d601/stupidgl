@@ -9,6 +9,7 @@
 #include "char_buffer.h"
 #include "matrix.h"
 #include "stupid_engine.h"
+#include "entity.h"
 
 // Everything outside the main engine code has no business killing the program,
 // so these functions aren't exported anywhere.
@@ -88,6 +89,11 @@ int stupid_engine_init_sdl_opengl(struct stupid_engine *engine)
     return 0;
 }
 
+int stupid_engine_init_camera(struct stupid_engine *engine)
+{
+    return entity_new(NULL, NULL, NULL, &(engine->camera));
+}
+
 int stupid_engine_new(struct stupid_engine **engine)
 {
     *engine = malloc(sizeof(struct stupid_engine));
@@ -100,6 +106,10 @@ int stupid_engine_new(struct stupid_engine **engine)
 int stupid_engine_start(struct stupid_engine *engine)
 {
     stupid_engine_init_sdl_opengl(engine);
+
+    die_if(
+        stupid_engine_init_camera(engine) < 0,
+        "Failed to init camera");
 
     glClearColor(0.0, 0.0, 0.0, 0.0);
 
